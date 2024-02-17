@@ -7,26 +7,30 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const port = 3000;
-var fName = "";
-var lName = "";
+var userIsAuthorised = false;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-function nameGenerator(req, res, next) {
-    console.log(req.body);
-    fName = req.body["fName"];
-    lName = req.body["lName"]
-    next();
+function passwordCheck(req, res, next) {
+  const password = req.body["password"];
+  if (password === "IAmTheBest") {
+    userIsAuthorised = true;
+  }
+  next();
 }
-app.use(nameGenerator);
+app.use(passwordCheck);
 
 app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/public/index.html");
+  res.sendFile(__dirname + "/public/index.html");
 });
 
 app.post("/login", (req, res) => {
-    console.log(req.body);
-res.send(`<h1>Your First Name is ${fName}</h1> \n <h2>Your Last Name is ${lName} </h2>`)
+  console.log(req.body);
+  if (userIsAuthorised) {
+    res.sendFile(__dirname + "/public/web.html");
+  } else {
+    res.sendFile(__dirname + "/public/index.html");
+  }
 });
 
-app.listen(port, ()=> console.log(`Server is running on port ${port}`))
+app.listen(port, () => console.log(`Server is running on port ${port}`));
